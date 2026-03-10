@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Modal Auxiliaries – AI Grammar Training Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0e0e12;
+    --paper: #f5f2ea;
+    --accent: #d4522a;
+    --accent2: #2a6dd4;
+    --gold: #c8a84b;
+    --green: #2a7d4f;
+    --pale: #ece8de;
+    --line: rgba(14,14,18,0.12);
+    --card: #ffffff;
+    --shadow: 0 2px 24px rgba(14,14,18,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lora', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ruled paper background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        transparent,
+        transparent 31px,
+        rgba(14,14,18,0.07) 31px,
+        rgba(14,14,18,0.07) 32px
+      );
+    background-size: 100% 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    padding: 48px 0 40px;
+    border-bottom: 3px double var(--ink);
+    margin-bottom: 48px;
+  }
+  .header-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  header h1 span { color: var(--accent); }
+  header p {
+    margin-top: 16px;
+    font-style: italic;
+    color: #555;
+    font-size: 1.05rem;
+    max-width: 500px;
+    margin-inline: auto;
+  }
+
+  /* ── GRAMMAR REFERENCE BOX ── */
+  .grammar-ref {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .grammar-ref::before {
+    content: '§';
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 6rem;
+    color: rgba(255,255,255,0.05);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .grammar-ref h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+  .grammar-ref p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgba(245,242,234,0.85);
+    margin-bottom: 14px;
+  }
+  .modal-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border: 1px solid rgba(245,242,234,0.25);
+    border-radius: 2px;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border: 1.5px solid var(--line);
+    border-radius: 4px;
+    padding: 32px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+  }
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .card h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  /* ── FORM ELEMENTS ── */
+  label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 6px;
+  }
+  input[type="text"], textarea {
+    width: 100%;
+    font-family: 'Lora', serif;
+    font-size: 1rem;
+    background: var(--pale);
+    border: 1.5px solid var(--line);
+    border-radius: 3px;
+    padding: 12px 16px;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    resize: none;
+  }
+  input[type="text"]:focus, textarea:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(42,109,212,0.1);
+  }
+  .sentence-field {
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .sentence-num {
+    position: absolute;
+    left: -32px;
+    top: 36px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--accent);
+    opacity: 0.4;
+  }
+  .sentences-wrap {
+    padding-left: 32px;
+  }
+
+  /* ── BUTTON ── */
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 14px 32px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    margin-top: 8px;
+  }
+  .btn-submit:hover { background: #b93d1a; transform: translateY(-1px); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled { background: #aaa; cursor: not-allowed; transform: none; }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .btn-submit.loading .spinner { display: block; }
+  .btn-submit.loading .btn-text { opacity: 0.6; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESULTS ── */
+  #results { display: none; }
+  #results.show { display: block; animation: fadeUp 0.5s ease; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Setting reveal */
+  /* ── SETTING REVEAL – big dramatic card ── */
+  .setting-reveal {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 6px;
+    padding: 0;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 48px rgba(14,14,18,0.22);
+  }
+  .setting-top {
+    padding: 36px 40px 28px;
+    position: relative;
+    z-index: 1;
+    border-bottom: 1px solid rgba(245,242,234,0.1);
+  }
+  .setting-bottom {
+    padding: 20px 40px 28px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  /* giant faded icon background */
+  .setting-reveal::before {
+    content: attr(data-icon);
+    position: absolute;
+    font-size: 22rem;
+    right: -40px;
+    bottom: -60px;
+    opacity: 0.045;
+    pointer-events: none;
+    z-index: 0;
+    line-height: 1;
+  }
+  .setting-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .setting-eyebrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(200,168,75,0.3);
+    max-width: 120px;
+  }
+  /* "THE SETTING IS:" label */
+  .setting-intro {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: rgba(245,242,234,0.5);
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+  /* THE BIG WORD */
+  .setting-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 12vw, 6rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    color: var(--paper);
+    margin-bottom: 0;
+    text-transform: uppercase;
+  }
+  .setting-name span {
+    color: var(--gold);
+  }
+  /* confidence badge */
+  .setting-confidence {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: rgba(200,168,75,0.15);
+    border: 1px solid rgba(200,168,75,0.35);
+    color: var(--gold);
+    padding: 5px 12px;
+    border-radius: 2px;
+    margin-top: 18px;
+    width: fit-content;
+  }
+  .setting-desc {
+    font-style: italic;
+    color: rgba(245,242,234,0.6);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    flex: 1;
+  }
+  .setting-icon-badge {
+    font-size: 2.8rem;
+    line-height: 1;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  }
+  /* pulse animation on reveal */
+  @keyframes settingReveal {
+    0%   { opacity: 0; transform: translateY(30px) scale(0.97); }
+    60%  { opacity: 1; transform: translateY(-4px) scale(1.01); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .setting-reveal.animate {
+    animation: settingReveal 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+
+  /* Sentence feedback */
+  .feedback-list { list-style: none; }
+  .feedback-item {
+    border: 1.5px solid var(--line);
+    border-radius: 4px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    background: var(--pale);
+    position: relative;
+  }
+  .feedback-item.correct { border-color: #2a7d4f; background: #f0faf4; }
+  .feedback-item.incorrect { border-color: var(--accent); background: #fdf5f2; }
+  .feedback-item.no-modal { border-color: var(--gold); background: #fdfaf0; }
+
+  .fi-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .fi-status.ok { color: var(--green); }
+  .fi-status.bad { color: var(--accent); }
+  .fi-status.warn { color: #9a7a1a; }
+
+  .fi-original {
+    font-style: italic;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .fi-feedback {
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.6;
+    border-top: 1px solid rgba(14,14,18,0.1);
+    padding-top: 8px;
+    margin-top: 8px;
+  }
+  .fi-correction {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #fff;
+    border-left: 3px solid var(--accent2);
+    font-size: 0.92rem;
+  }
+  .fi-correction strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .fi-recommended {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #fff;
+    border-left: 3px solid var(--gold);
+    font-size: 0.92rem;
+  }
+  .fi-recommended strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #9a7a1a;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .fi-sentence-num {
+    position: absolute;
+    top: 18px; right: 18px;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: rgba(14,14,18,0.07);
+    line-height: 1;
+  }
+
+  /* Reset button */
+  .btn-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    border-radius: 3px;
+    padding: 10px 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+  }
+  .btn-reset:hover { background: var(--ink); color: var(--paper); }
+
+  /* Error banner */
+  .error-banner {
+    background: #fdf5f2;
+    border: 1.5px solid var(--accent);
+    border-radius: 4px;
+    padding: 14px 18px;
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: none;
+  }
+  .error-banner.show { display: block; animation: fadeUp 0.3s ease; }
+
+  /* Student name display */
+  .student-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--gold);
+    color: var(--ink);
+    padding: 6px 14px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  footer {
+    text-align: center;
+    padding: 40px 0 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: #999;
+    text-transform: uppercase;
+    border-top: 1px solid var(--line);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 600px) {
+    .card { padding: 20px 18px; }
+    .sentences-wrap { padding-left: 0; }
+    .sentence-num { display: none; }
+    .grammar-ref { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-tag">AI Grammar Training Dashboard</div>
+    <h1>Modal <span>Auxiliaries</span><br>Rule Builder</h1>
+    <p>Practice writing rules and requirements using modal auxiliary verbs, then let AI evaluate your sentences.</p>
+  </header>
+
+  <!-- GRAMMAR REFERENCE -->
+  <div class="grammar-ref">
+    <h2>Grammar Reference · Modal Auxiliaries</h2>
+    <p>Modal auxiliaries are helping verbs that express <em>necessity, permission, obligation, ability, or possibility</em>. When writing rules or requirements, modals give your sentences the right level of authority.</p>
+    <p>Use them in the pattern: <strong>Subject + Modal + Base Verb</strong> &nbsp;(e.g. "Students <em>must</em> submit their work on time.")</p>
+    <div class="modal-chips">
+      <span class="chip">must</span>
+      <span class="chip">must not</span>
+      <span class="chip">should</span>
+      <span class="chip">should not</span>
+      <span class="chip">have to</span>
+      <span class="chip">may</span>
+      <span class="chip">may not</span>
+      <span class="chip">can</span>
+      <span class="chip">cannot</span>
+      <span class="chip">could</span>
+      <span class="chip">will</span>
+      <span class="chip">would</span>
+      <span class="chip">shall</span>
+      <span class="chip">need to</span>
+      <span class="chip">ought to</span>
+    </div>
+  </div>
+
+  <!-- FORM CARD -->
+  <div class="card" id="form-card">
+    <div class="card-label">Step 1 of 2 · Identification</div>
+    <h2>Enter Your Name</h2>
+    <div style="margin-bottom:28px;">
+      <label for="student-name">Full Name</label>
+      <input type="text" id="student-name" placeholder="e.g. Maria Santos" autocomplete="off" />
+    </div>
+
+    <div class="card-label" style="margin-top:4px;">Step 2 of 2 · Rule Writing</div>
+    <h2>Write Four Rules Using Modal Auxiliaries</h2>
+    <p style="font-style:italic;color:#666;font-size:0.92rem;margin-bottom:22px;">
+      Each sentence should be a rule or requirement — like rules for a classroom, workplace, gym, hospital, etc. Use a different modal auxiliary in each sentence if you can.
+    </p>
+
+    <div class="sentences-wrap">
+      <div class="sentence-field">
+        <span class="sentence-num">1</span>
+        <label for="s1">Sentence 1</label>
+        <textarea id="s1" rows="2" placeholder="e.g. Students must submit all assignments by Friday."></textarea>
+      </div>
+      <div class="sentence-field">
+        <span class="sentence-num">2</span>
+        <label for="s2">Sentence 2</label>
+        <textarea id="s2" rows="2" placeholder="e.g. You may not use your phone during the exam."></textarea>
+      </div>
+      <div class="sentence-field">
+        <span class="sentence-num">3</span>
+        <label for="s3">Sentence 3</label>
+        <textarea id="s3" rows="2" placeholder="e.g. All staff should wear their ID badges at all times."></textarea>
+      </div>
+      <div class="sentence-field">
+        <span class="sentence-num">4</span>
+        <label for="s4">Sentence 4</label>
+        <textarea id="s4" rows="2" placeholder="e.g. Visitors have to sign in at the front desk."></textarea>
+      </div>
+    </div>
+
+    <div class="error-banner" id="error-banner">Please fill in your name and all four sentences before submitting.</div>
+
+    <button class="btn-submit" id="submit-btn" onclick="handleSubmit()">
+      <div class="spinner"></div>
+      <span class="btn-text">✦ Analyse with AI</span>
+    </button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div id="student-badge-wrap"></div>
+
+    <!-- SETTING CARD -->
+    <div class="setting-reveal" id="setting-block" data-icon="🏫">
+      <div class="setting-top">
+        <div class="setting-eyebrow">AI Setting Detection</div>
+        <div class="setting-intro">Based on your four rules, the setting is:</div>
+        <div class="setting-name" id="setting-name">—</div>
+        <div class="setting-confidence" id="setting-confidence">✦ Analysing…</div>
+      </div>
+      <div class="setting-bottom">
+        <div class="setting-icon-badge" id="setting-icon">📋</div>
+        <div class="setting-desc" id="setting-desc">Processing your sentences…</div>
+      </div>
+    </div>
+
+    <!-- SENTENCE FEEDBACK -->
+    <div class="card">
+      <div class="card-label">AI Feedback · Grammar Check</div>
+      <h2>Sentence Analysis</h2>
+      <ul class="feedback-list" id="feedback-list"></ul>
+    </div>
+
+    <button class="btn-reset" onclick="resetForm()">↩ Try Again</button>
+  </div>
+
+  <footer>Modal Auxiliaries Training Dashboard &nbsp;·&nbsp; Powered by Gemini AI &nbsp;·&nbsp; Grammar Edition</footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  MODAL AUXILIARIES TRAINING DASHBOARD — pure local engine
+//  No API calls. No async. No network. Cannot freeze.
+// ═══════════════════════════════════════════════════════════════
+
+// ── 1. MODAL AUXILIARY DETECTION ────────────────────────────────
+const MODALS = [
+  "must not","must","mustn't","mustn't",
+  "should not","should","shouldn't","shouldn't",
+  "have to","has to","had to",
+  "may not","may",
+  "might not","might",
+  "cannot","can not","can't","can't","can",
+  "could not","couldn't","couldn't","could",
+  "will not","won't","won't","will",
+  "would not","wouldn't","wouldn't","would",
+  "shall not","shan't","shan't","shall",
+  "need not","need to","needs to","needn't","needn't",
+  "ought to",
+  "do not have to","does not have to","don't have to","doesn't have to"
+];
+
+function findModal(sentence) {
+  const lower = sentence.toLowerCase();
+  for (const m of MODALS) {
+    const idx = lower.indexOf(m);
+    if (idx !== -1) return m;
+  }
+  return null;
+}
+
+// ── 2. SPELLING DICTIONARY ───────────────────────────────────────
+const SPELL = {
+  "recieve":"receive","beleive":"believe","occured":"occurred",
+  "seperately":"separately","definately":"definitely","definetly":"definitely",
+  "neccessary":"necessary","necesary":"necessary",
+  "accomodate":"accommodate","accommadate":"accommodate",
+  "begining":"beginning","begginning":"beginning",
+  "calender":"calendar","collegue":"colleague","colleage":"colleague",
+  "comming":"coming","equipement":"equipment","equipmnet":"equipment",
+  "excercise":"exercise","exercize":"exercise",
+  "existance":"existence","foriegn":"foreign","freind":"friend",
+  "grammer":"grammar","gramer":"grammar",
+  "goverment":"government","harrass":"harass","harras":"harass",
+  "independant":"independent","libary":"library",
+  "lisence":"licence","lisense":"license",
+  "maintanance":"maintenance","maintainence":"maintenance",
+  "occassion":"occasion","ocassion":"occasion",
+  "paralell":"parallel","permision":"permission","permisson":"permission",
+  "reccommend":"recommend","recomend":"recommend",
+  "relevent":"relevant","responsabilty":"responsibility",
+  "rythm":"rhythm","succesful":"successful","successfull":"successful",
+  "suprise":"surprise","tommorrow":"tomorrow","tomorow":"tomorrow",
+  "untill":"until","wierd":"weird","writting":"writing","writeing":"writing",
+  "alot":"a lot","thier":"their","theit":"their",
+  "cant":"can't","wont":"won't","dont":"don't",
+  "doesnt":"doesn't","isnt":"isn't","arent":"aren't",
+  "shouldnt":"shouldn't","mustnt":"mustn't","couldnt":"couldn't",
+  "wouldnt":"wouldn't","neednt":"needn't",
+  "youre":"you're","theyre":"they're","weve":"we've",
+  "everytime":"every time","alway":"always","allways":"always",
+  "atleast":"at least","aswell":"as well","ofcourse":"of course",
+  "inorder":"in order","infact":"in fact"
+};
+
+function checkSpelling(sentence) {
+  const issues = [];
+  let fixed = sentence;
+  const tokens = sentence.split(/(\s+|[,\.!?;:])/);
+  tokens.forEach(function(tok) {
+    const word = tok.replace(/[^a-zA-Z']/g, '').toLowerCase();
+    if (word && SPELL[word]) {
+      issues.push('"' + tok.trim() + '" → "' + SPELL[word] + '"');
+      const re = new RegExp('\\b' + word + '\\b', 'gi');
+      fixed = fixed.replace(re, function(m) {
+        const c = SPELL[word];
+        return m[0] === m[0].toUpperCase() ? c[0].toUpperCase() + c.slice(1) : c;
+      });
+    }
+  });
+  return { issues: issues, fixed: fixed };
+}
+
+// ── 3. PUNCTUATION & BASIC GRAMMAR CHECKS ───────────────────────
+function checkPunctuation(sentence) {
+  const issues = [];
+  let fixed = sentence.trim();
+
+  if (/^[a-z]/.test(fixed)) {
+    issues.push('Starts with a lowercase letter — capitalise the first word.');
+    fixed = fixed[0].toUpperCase() + fixed.slice(1);
+  }
+  if (!/[.!?]$/.test(fixed)) {
+    issues.push('Missing end punctuation — add a full stop or exclamation mark.');
+    fixed = fixed + '.';
+  }
+  if (/\s[,;:.]/.test(fixed)) {
+    issues.push('Space before punctuation mark — remove the space before the comma/full stop.');
+    fixed = fixed.replace(/\s([,;:.])/g, '$1');
+  }
+  if (/[,;:](?!\s)(?!$)/.test(fixed)) {
+    issues.push('Missing space after punctuation mark.');
+    fixed = fixed.replace(/([,;:])(?!\s)/g, '$1 ');
+  }
+  if (/\s{2,}/.test(fixed)) {
+    issues.push('Extra spaces between words.');
+    fixed = fixed.replace(/\s{2,}/g, ' ');
+  }
+  if (/\bi\b/.test(fixed)) {
+    issues.push('The pronoun "i" should be capitalised as "I".');
+    fixed = fixed.replace(/\bi\b/g, 'I');
+  }
+  return { issues: issues, fixed: fixed };
+}
+
+function checkGrammar(sentence) {
+  const issues = [];
+  let fixed = sentence;
+
+  // modal + "to" (e.g. "must to go")
+  if (/\b(must|should|may|might|can|could|will|would|shall)\s+to\s+\w/i.test(sentence)) {
+    issues.push('Modal auxiliaries are not followed by "to" — write "must go" not "must to go".');
+    fixed = fixed.replace(/\b(must|should|may|might|can|could|will|would|shall)\s+to\s+/gi, '$1 ');
+  }
+  // a vs an
+  if (/\ba\s+[aeiou]/i.test(sentence) && !/\ba\s+(uni|use|one|once|ewe)/i.test(sentence)) {
+    issues.push('Use "an" before words starting with a vowel sound (e.g. "an apple", not "a apple").');
+    fixed = fixed.replace(/\ba\s+([aeiou])/gi, 'an $1');
+  }
+  if (/\ban\s+[^aeiou\s]/i.test(sentence) && !/\ban\s+(hour|heir|honest|honour|honor)/i.test(sentence)) {
+    issues.push('Use "a" before words starting with a consonant sound (e.g. "a book", not "an book").');
+  }
+  return { issues: issues, fixed: fixed };
+}
+
+// ── 4. FULL SENTENCE ANALYSIS ────────────────────────────────────
+function analyseSentence(sentence, idx) {
+  const modal = findModal(sentence);
+  const hasModal = modal !== null;
+
+  const spelling  = checkSpelling(sentence);
+  let working     = spelling.fixed;
+  const punct     = checkPunctuation(working);
+  working         = punct.fixed;
+  const grammar   = checkGrammar(working);
+  working         = grammar.fixed;
+
+  const allIssues = [];
+  if (spelling.issues.length)  allIssues.push('Spelling: '     + spelling.issues.join('; ') + '.');
+  if (punct.issues.length)     allIssues.push('Punctuation: '  + punct.issues.join(' '));
+  if (grammar.issues.length)   allIssues.push('Grammar: '      + grammar.issues.join(' '));
+
+  // Modal missing — that is itself a grammar error for this exercise
+  if (!hasModal) {
+    allIssues.push('Modal auxiliary missing: this sentence does not contain a modal auxiliary verb (must, should, may, can, have to, etc.).');
+  }
+
+  const isCorrect = allIssues.length === 0;
+
+  // Build recommendation if no modal
+  let recommended = null;
+  if (!hasModal) {
+    recommended = buildRecommendation(sentence);
+  }
+
+  return {
+    index:               idx + 1,
+    original:            sentence,
+    grammaticallyCorrect: isCorrect,
+    hasModalAuxiliary:   hasModal,
+    modalFound:          modal,
+    feedback:            isCorrect
+                           ? 'This sentence is correct — good spelling, punctuation, and grammar, with a modal auxiliary present.'
+                           : allIssues.join(' '),
+    correction:          (!isCorrect && working !== sentence) ? working : null,
+    recommended:         recommended
+  };
+}
+
+function buildRecommendation(sentence) {
+  const s = sentence.replace(/[.!?]+$/, '').trim();
+  const neg = s.match(/^(?:do(?:es)?\s+not|don['’]t|doesn['’]t|never|no)\s+(.+)/i);
+  if (neg) return 'You must not ' + neg[1].toLowerCase() + '.';
+  const words = s.split(' ');
+  return 'You must ' + words[0].toLowerCase() + ' ' + words.slice(1).join(' ') + '.';
+}
+
+// ── 5. SETTING DETECTION (skips sentences without modal) ─────────
+const SETTING_DATA = {
+  'School': {
+    icon: '🏫',
+    words: ['student','teacher','class','desk','bell','recess','uniform','bookbag',
+      'school','grade','principal','exam','quiz','assignment','corridor','classroom',
+      'playground','pencil','notebook','timetable','attendance','detention','grounds',
+      'textbook','whiteboard','hallway','locker','lesson','homework','draw','greet',
+      'lunch','flag','subject','teacher','teachers']
+  },
+  'Hospital': {
+    icon: '🏥',
+    words: ['patient','nurse','doctor','medication','surgery','ward','hospital','clinic',
+      'treatment','prescription','medical','emergency','hygiene','sanitise','sanitize',
+      'gloves','mask','gown','sterile','infection','blood','chart','diagnosis','ambulance',
+      'icu','visitor','discharge','bed','sanitize','wash hands']
+  },
+  'Office': {
+    icon: '🏢',
+    words: ['employee','staff','meeting','deadline','report','manager','client','badge',
+      'workspace','conference','email','project','colleague','office','desk','hr',
+      'dress code','professional','laptop','printer','payroll','overtime','boardroom',
+      'attendance','performance','id badge','id card']
+  },
+  'Gym': {
+    icon: '🏋️',
+    words: ['equipment','weights','machine','locker','trainer','workout','exercise',
+      'fitness','gym','treadmill','mat','towel','shower','membership','bench',
+      'cardio','stretch','cooldown','hydrate','rack','barbell','dumbbell']
+  },
+  'Restaurant': {
+    icon: '🍽️',
+    words: ['food','kitchen','chef','server','table','menu','order','hygiene','apron',
+      'guest','dish','customer','restaurant','cafeteria','dine','allergy','uniform',
+      'tray','utensil','reservation','ingredients','cook','serve','wash']
+  },
+  'Library': {
+    icon: '📚',
+    words: ['book','librarian','reading','quiet','return','borrow','library','shelf',
+      'shelves','noise','phone','catalogue','overdue','fine','reference','study',
+      'computer','renew','periodical','checkout','silence','whisper']
+  },
+  'Laboratory': {
+    icon: '🔬',
+    words: ['experiment','sample','chemical','safety','goggles','lab','laboratory',
+      'gloves','hazard','specimen','research','fume','hood','reagent','pipette',
+      'bunsen','acid','base','compound','microscope','contaminate','protective']
+  },
+  'Courtroom': {
+    icon: '⚖️',
+    words: ['witness','judge','lawyer','evidence','court','legal','proceeding',
+      'attorney','objection','case','verdict','oath','testimony','jury','counsel',
+      'defendant','plaintiff','bailiff','ruling','chamber','address','rise']
+  },
+  'Airport': {
+    icon: '✈️',
+    words: ['passenger','boarding','luggage','security','gate','flight','ticket',
+      'customs','airport','terminal','bus','train','platform','check-in','baggage',
+      'departure','arrival','passport','scan','queue','cabin','crew','declare']
+  },
+  'Hotel': {
+    icon: '🏨',
+    words: ['guest','room','check-in','checkout','staff','lobby','concierge',
+      'hotel','resort','housekeeping','suite','reception','amenity','minibar',
+      'reservation','valet','pool','spa','breakfast','key card','key']
+  },
+  'Swimming Pool': {
+    icon: '🏊',
+    words: ['pool','swim','swimming','lifeguard','lane','dive','diving','float',
+      'chlorine','shower','cap','goggle','poolside','depth','shallow','deep','run']
+  },
+  'University': {
+    icon: '🎓',
+    words: ['lecture','professor','campus','tutorial','semester','module','degree',
+      'faculty','plagiarism','citation','thesis','essay','undergraduate','postgraduate',
+      'dean','academic','assignment','student','attendance','submit','class']
+  }
+};
+
+function detectSetting(sentences) {
+  // Only use sentences that HAVE a modal auxiliary
+  const validSentences = sentences.filter(function(s) { return findModal(s) !== null; });
+
+  if (validSentences.length === 0) {
+    return {
+      setting: 'Undetermined',
+      icon: '📋',
+      desc: 'No valid sentences with modal auxiliaries found to determine a setting.',
+      confidence: 'Not enough data'
+    };
+  }
+
+  const combined = validSentences.join(' ').toLowerCase();
+  const scores = {};
+
+  for (const name in SETTING_DATA) {
+    let score = 0;
+    SETTING_DATA[name].words.forEach(function(w) {
+      if (combined.indexOf(w.toLowerCase()) !== -1) score++;
+    });
+    scores[name] = score;
+  }
+
+  const ranked = Object.keys(scores).sort(function(a,b){ return scores[b]-scores[a]; });
+  const best = ranked[0];
+  const bestScore = scores[best];
+  const second = ranked[1];
+  const secondScore = scores[second];
+
+  if (bestScore === 0) {
+    return {
+      setting: 'General Environment',
+      icon: '📋',
+      desc: 'These rules could apply across many everyday environments.',
+      confidence: 'Low confidence'
+    };
+  }
+
+  let confidence = bestScore >= 4 ? 'Strong match' : bestScore >= 2 ? 'Likely match' : 'Possible match';
+
+  let desc = (secondScore === bestScore && second)
+    ? 'These rules most likely apply to a ' + best.toLowerCase() + ' setting (also possibly: ' + second.toLowerCase() + ').'
+    : 'The vocabulary and content of these rules suggest a ' + best.toLowerCase() + ' setting.';
+
+  // How many valid sentences contributed
+  if (validSentences.length < sentences.length) {
+    const skipped = sentences.length - validSentences.length;
+    desc += ' (' + skipped + ' sentence' + (skipped > 1 ? 's were' : ' was') + ' skipped — no modal auxiliary found.)';
+  }
+
+  return { setting: best, icon: SETTING_DATA[best].icon, desc: desc, confidence: confidence };
+}
+
+// ── 6. SUBMIT HANDLER — synchronous, no API, cannot freeze ───────
+function handleSubmit() {
+  const name = document.getElementById('student-name').value.trim();
+  const sentences = [
+    document.getElementById('s1').value.trim(),
+    document.getElementById('s2').value.trim(),
+    document.getElementById('s3').value.trim(),
+    document.getElementById('s4').value.trim()
+  ];
+
+  const errorBanner = document.getElementById('error-banner');
+
+  if (!name || sentences.some(function(s){ return !s; })) {
+    errorBanner.textContent = 'Please fill in your name and all four sentences before submitting.';
+    errorBanner.classList.add('show');
+    return;
+  }
+  errorBanner.classList.remove('show');
+
+  // Analyse each sentence
+  const analysed = sentences.map(function(s, i){ return analyseSentence(s, i); });
+
+  // Detect setting from valid sentences only
+  const setting = detectSetting(sentences);
+
+  // Render
+  renderResults(name, analysed, setting);
+}
+
+// ── 7. RENDER RESULTS ────────────────────────────────────────────
+function renderResults(name, analysed, setting) {
+  // Hide form
+  document.getElementById('form-card').style.display = 'none';
+
+  // Student badge
+  document.getElementById('student-badge-wrap').innerHTML =
+    '<div class="student-badge">&#10022; ' + escHtml(name) + '</div>';
+
+  // Setting card
+  var settingEl = document.getElementById('setting-block');
+  settingEl.setAttribute('data-icon', setting.icon);
+  settingEl.classList.add('animate');
+
+  document.getElementById('setting-name').textContent = setting.setting.toUpperCase();
+  document.getElementById('setting-icon').textContent = setting.icon;
+  document.getElementById('setting-desc').textContent = setting.desc;
+  document.getElementById('setting-confidence').textContent = '&#10022; ' + setting.confidence;
+
+  // Sentence feedback
+  var list = document.getElementById('feedback-list');
+  list.innerHTML = '';
+
+  analysed.forEach(function(item) {
+    var cls = 'feedback-item';
+    var statusCls = '', statusText = '';
+
+    if (!item.hasModalAuxiliary) {
+      cls += ' incorrect';
+      statusCls = 'bad';
+      statusText = '&#10007; No Modal Auxiliary — Sentence Skipped for Setting';
+    } else if (!item.grammaticallyCorrect) {
+      cls += ' incorrect';
+      statusCls = 'bad';
+      statusText = '&#10007; Issues Found';
+    } else {
+      cls += ' correct';
+      statusCls = 'ok';
+      statusText = '&#10003; Correct &middot; Modal: "' + escHtml(item.modalFound) + '"';
+    }
+
+    var correctionHtml = '';
+    if (item.correction) {
+      correctionHtml = '<div class="fi-correction"><strong>Corrected Sentence</strong>' + escHtml(item.correction) + '</div>';
+    }
+    var recommendedHtml = '';
+    if (item.recommended) {
+      recommendedHtml = '<div class="fi-recommended"><strong>Suggested Rewrite with Modal Auxiliary</strong>' + escHtml(item.recommended) + '</div>';
+    }
+
+    var li = document.createElement('li');
+    li.className = cls;
+    li.innerHTML =
+      '<div class="fi-sentence-num">' + item.index + '</div>' +
+      '<div class="fi-status ' + statusCls + '">' + statusText + '</div>' +
+      '<div class="fi-original">&ldquo;' + escHtml(item.original) + '&rdquo;</div>' +
+      '<div class="fi-feedback">' + escHtml(item.feedback) + '</div>' +
+      correctionHtml +
+      recommendedHtml;
+    list.appendChild(li);
+  });
+
+  // Show results
+  var resultsEl = document.getElementById('results');
+  resultsEl.classList.add('show');
+  resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── 8. RESET ─────────────────────────────────────────────────────
+function resetForm() {
+  document.getElementById('form-card').style.display = 'block';
+  var resultsEl = document.getElementById('results');
+  resultsEl.classList.remove('show');
+  document.getElementById('feedback-list').innerHTML = '';
+  document.getElementById('student-name').value = '';
+  ['s1','s2','s3','s4'].forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('error-banner').classList.remove('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── 9. HELPERS ───────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
